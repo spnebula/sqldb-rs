@@ -1,6 +1,6 @@
 // Import the Chars type from the std::str module
 use std::{
-    char,
+    char, fmt,
     iter::{Iterator, Peekable},
     str::Chars,
 };
@@ -35,6 +35,39 @@ pub enum Token {
     Slash,
 }
 
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // match self {
+        //     Token::Keyword(keyword) => write!(f, "{keyword}"),
+        //     Token::Ident(ident) => write!(f, "{ident}"),
+        //     Token::String(string) => write!(f, "{}", string),
+        //     Token::Number(number) => write!(f, "{number}"),
+        //     Token::OpenParen => write!(f, "("),
+        //     Token::CloseParen => write!(f, ")"),
+        //     Token::Comma => write!(f, ","),
+        //     Token::Semicolon => write!(f, ";"),
+        //     Token::Asterisk => write!(f, "*"),
+        //     Token::Plus => write!(f, "+"),
+        //     Token::Minus => write!(f, "-"),
+        //     Token::Slash => write!(f, "/"),
+        // }
+        f.write_str(match self {
+            Token::Keyword(keyword) => keyword.to_str(),
+            Token::Ident(ident) => ident,
+            Token::String(string) => string,
+            Token::Number(number) => number,
+            Token::OpenParen => "(",
+            Token::CloseParen => ")",
+            Token::Comma => ",",
+            Token::Semicolon => ";",
+            Token::Asterisk => "*",
+            Token::Plus => "+",
+            Token::Minus => "-",
+            Token::Slash => "/",
+        })
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Keyword {
     Create,
@@ -62,14 +95,46 @@ pub enum Keyword {
     Key,
 }
 
+impl fmt::Display for Keyword {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // match self {
+        //     Keyword::Create => write!(f, "CREATE"),
+        //     Keyword::Table => write!(f, "TABLE"),
+        //     Keyword::Int => write!(f, "INT"),
+        //     Keyword::Integer => write!(f, "INTEGER"),
+        //     Keyword::Bool => write!(f, "BOOL"),
+        //     Keyword::Boolean => write!(f, "BOOLEAN"),
+        //     Keyword::String => write!(f, "STRING"),
+        //     Keyword::Text => write!(f, "TEXT"),
+        //     Keyword::Varchar => write!(f, "VARCHAR"),
+        //     Keyword::Float => write!(f, "FLOAT"),
+        //     Keyword::Double => write!(f, "DOUBLE"),
+        //     Keyword::Select => write!(f, "SELECT"),
+        //     Keyword::From => write!(f, "FROM"),
+        //     Keyword::Insert => write!(f, "INSERT"),
+        //     Keyword::Into => write!(f, "INTO"),
+        //     Keyword::Values => write!(f, "VALUES"),
+        //     Keyword::True => write!(f, "TRUE"),
+        //     Keyword::False => write!(f, "FALSE"),
+        //     Keyword::Default => write!(f, "DEFAULT"),
+        //     Keyword::Not => write!(f, "NOT"),
+        //     Keyword::Null => write!(f, "NULL"),
+        //     Keyword::Primary => write!(f, "PRIMARY"),
+        //     Keyword::Key => write!(f, "KEY"),
+        // }
+        f.write_str(self.to_str())
+    }
+}
+
 impl Keyword {
-    pub fn fmt_str(ident: &str) -> Option<Keyword> {
+    pub fn from_str(ident: &str) -> Option<Keyword> {
         match ident.to_uppercase().as_str() {
             "CREATE" => Some(Keyword::Create),
             "TABLE" => Some(Keyword::Table),
             "INT" => Some(Keyword::Int),
             "INTEGER" => Some(Keyword::Integer),
             "BOOL" => Some(Keyword::Bool),
+            "Boolean" => Some(Keyword::Boolean),
             "STRING" => Some(Keyword::String),
             "TEXT" => Some(Keyword::Text),
             "VARCHAR" => Some(Keyword::Varchar),
@@ -88,6 +153,34 @@ impl Keyword {
             "PRIMARY" => Some(Keyword::Primary),
             "KEY" => Some(Keyword::Key),
             _ => None,
+        }
+    }
+
+    pub fn to_str(&self) -> &str {
+        match self {
+            Keyword::Create => "CREATE",
+            Keyword::Table => "TABLE",
+            Keyword::Int => "INT",
+            Keyword::Integer => "INTEGER",
+            Keyword::Bool => "BOOL",
+            Keyword::Boolean => "BOOLEAN",
+            Keyword::String => "STRING",
+            Keyword::Text => "TEXT",
+            Keyword::Varchar => "VARCHAR",
+            Keyword::Float => "FLOAT",
+            Keyword::Double => "DOUBLE",
+            Keyword::Select => "SELECT",
+            Keyword::From => "FROM",
+            Keyword::Insert => "INSERT",
+            Keyword::Into => "INTO",
+            Keyword::Values => "VALUES",
+            Keyword::True => "TRUE",
+            Keyword::False => "FALSE",
+            Keyword::Default => "DEFAULT",
+            Keyword::Not => "NOT",
+            Keyword::Null => "NULL",
+            Keyword::Primary => "PRIMARY",
+            Keyword::Key => "KEY",
         }
     }
 }
@@ -209,7 +302,10 @@ impl<'a> Lexer<'a> {
             _ => {}
         }
 
-        Some(Keyword::fmt_str(&ident).map_or(Token::Ident(ident.to_lowercase()), Token::Keyword))
+        Some(
+            Keyword::from_str(ident.as_str())
+                .map_or(Token::Ident(ident.to_lowercase()), Token::Keyword),
+        )
     }
 
     // 扫描符号
